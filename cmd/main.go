@@ -1,25 +1,22 @@
 package main
 
 import (
+	"finalproject/pkg/db"
+	"finalproject/pkg/server"
 	"log"
-	"net/http"
-	"os"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error load env ", err)
+	_, err := db.InitDB()
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	r := chi.NewRouter()
+	if err := server.Run(r); err != nil {
+		log.Printf("Could not start the server %v\n", err)
+	}
 
-	webDir := "./web"
-
-	r.Handle("/*", http.FileServer(http.Dir(webDir)))
-
-	port := os.Getenv("TODO_PORT")
-	http.ListenAndServe(":"+port, r)
 }
