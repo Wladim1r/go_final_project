@@ -1,6 +1,7 @@
 package main
 
 import (
+	"finalproject/pkg/api"
 	"finalproject/pkg/db"
 	"finalproject/pkg/server"
 	"log"
@@ -15,6 +16,9 @@ func main() {
 	}
 
 	r := chi.NewRouter()
+
+	r.Get("/api/nextdate", api.Handler_NextDate)
+
 	if err := server.Run(r); err != nil {
 		log.Printf("Could not start the server %v\n", err)
 	}
