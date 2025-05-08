@@ -3,8 +3,6 @@ package api
 import (
 	"errors"
 	"fmt"
-	"log"
-	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -148,44 +146,4 @@ func checkError(v string, down, up int) (int, error) {
 	}
 
 	return n, nil
-}
-
-func Handler_NextDate(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Request: %s %s", r.Method, r.URL)
-
-	query := r.URL.Query()
-
-	now := query.Get("now")
-	date := query.Get("date")
-	repeat := query.Get("repeat")
-
-	if date == "" || repeat == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("date and repeat parameters are required"))
-		return
-	}
-
-	var nowTime time.Time
-	var err error
-
-	if now == "" {
-		nowTime = time.Now()
-	} else {
-		nowTime, err = time.Parse("20060102", now)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Invalid now parameter " + err.Error()))
-			return
-		}
-	}
-	nextDate, err := nextDate(nowTime, date, repeat)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "text/plain")
-	w.Write([]byte(nextDate))
 }

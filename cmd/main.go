@@ -18,6 +18,7 @@ func main() {
 	r := chi.NewRouter()
 
 	r.Get("/api/nextdate", api.Handler_NextDate)
+	r.Post("/api/task", api.AddTaskHandle)
 
 	if err := server.Run(r); err != nil {
 		log.Printf("Could not start the server %v\n", err)
