@@ -5,14 +5,11 @@ import (
 	"errors"
 	"finalproject/pkg/db"
 	"io"
-	"log"
 	"net/http"
 	"time"
 )
 
 func Handler_NextDate(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Request: %s %s", r.Method, r.URL)
-
 	query := r.URL.Query()
 
 	now := query.Get("now")
@@ -122,9 +119,53 @@ func AddTaskHandle(w http.ResponseWriter, r *http.Request) {
 	}{
 		ID: id,
 	}
-	res, _ := json.Marshal(successResponse)
 
-	w.WriteHeader(http.StatusCreated)
+	res, err := json.Marshal(successResponse)
+	if err != nil {
+		errHandler(w, "Failed to encode JSON", err)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusCreated)
 	w.Write(res)
+}
+
+func GetTasksHandler(w http.ResponseWriter, r *http.Request) {
+	var tip string
+
+	search := r.URL.Query().Get("search")
+	if t, err := time.Parse("02.01.2006", search); err == nil {
+		search = t.Format("20060102")
+		tip = "time"
+	} else {
+		tip = "default"
+	}
+
+	tasks, err := db.Tasks(50, search, tip)
+	if err != nil {
+		errHandler(w, "", err)
+		return
+	}
+
+	var resp db.TaskResp
+	if len(tasks) == 0 {
+		resp = db.TaskResp{
+			Tasks: []*db.Task{},
+		}
+	} else {
+		resp = db.TaskResp{
+			Tasks: tasks,
+		}
+	}
+
+	tasksByte, err := json.Marshal(resp)
+	if err != nil {
+		errHandler(w, "Failed to encode JSON", err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(tasksByte)
 }
