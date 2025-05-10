@@ -20,6 +20,8 @@ func main() {
 	r.Get("/api/nextdate", api.Handler_NextDate)
 	r.Post("/api/task", api.AddTaskHandle)
 	r.Get("/api/tasks", api.GetTasksHandler)
+	r.Get("/api/task", api.GetTaskHandler)
+	r.Put("/api/task", api.PutTaskHandler)
 
 	if err := server.Run(r); err != nil {
 		log.Printf("Could not start the server %v\n", err)

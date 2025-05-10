@@ -29,6 +29,38 @@ func AddTask(t Task) (int64, error) {
 	return id, err
 }
 
+func GetTask(id string) (*Task, error) {
+	query := `SELECT * FROM scheduler WHERE id = ?`
+	row := db.QueryRow(query, id)
+
+	var task Task
+
+	err := row.Scan(&task.ID, &task.Date, &task.Title, &task.Comment, &task.Repeat)
+	if err != nil {
+		return nil, fmt.Errorf("Could not read row %w\n", err)
+	}
+
+	return &task, nil
+}
+
+func UpdateTask(task *Task) error {
+	query := `UPDATE scheduler SET date = ?, title = ?, comment = ?, repeat = ?`
+	res, err := db.Exec(query, task.Date, task.Title, task.Comment, task.Repeat)
+	if err != nil {
+		return err
+	}
+
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return fmt.Errorf("Incorrect id for updating task")
+	}
+
+	return nil
+}
+
 func Tasks(limit int, search, tip string) ([]*Task, error) {
 	var query string
 	var args []interface{}

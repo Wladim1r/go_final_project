@@ -16,7 +16,10 @@ var checkList = map[string]struct{}{
 }
 
 func afterNow(date, now time.Time) bool {
-	return date.After(now)
+	newDate := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)
+	newNow := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+
+	return newDate.After(newNow)
 }
 
 func nextDate(now time.Time, dstart string, repeat string) (string, error) {
